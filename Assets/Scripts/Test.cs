@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
 
-public class Test : MonoBehaviour {
+public class Test : MonoBehaviour { 
     static string url = "https://api.npoint.io/eddef1e4d9af278a43a0";
 
     public TrainingSet[] TrainingSets { get; private set; }

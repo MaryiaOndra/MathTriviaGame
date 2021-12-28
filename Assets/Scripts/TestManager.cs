@@ -9,18 +9,15 @@ public class TestManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text _question;
     [SerializeField] private TMP_Text _scoreText;
-    [SerializeField] private TMP_Text _levelsText;
     [SerializeField] private List<AnswerButton> _buttons;
     [SerializeField] private int _pointsForAnswer = 50;
     [SerializeField] private float _timeAfterAnswer = 1f;
 
-    TrainingSet[] _sets;
-    List<int> _buttonsNumbers;
-
-    Test test;
-    int _countSets = 0;
-    int _setsAmount;
-    int _score = 0;
+    private TrainingSet[] _sets;
+    private List<int> _buttonsNumbers;
+    private int _countSets = 0;
+    private int _setsAmount;
+    private int _score = 0;
 
     private void Start() {
         Test test = GetComponent<Test>();
@@ -28,35 +25,33 @@ public class TestManager : MonoBehaviour
         _buttons.ForEach(b => b.OnAnswer += Answer);
     }
 
-    void StartGeneratingTest(TrainingSet[] sets) {
-        ResetTest();
+    private void StartGeneratingTest(TrainingSet[] sets) {
         _sets = sets;
         _setsAmount = _sets.Length - 1;
-        GenerateSet(sets[_countSets]);
+        ResetTest();
     }
 
-    void GenerateSet(TrainingSet trainingSet) {
+    private void GenerateSet(TrainingSet trainingSet) {
         _question.text = trainingSet.displaySet[0].text;
-        _levelsText.text = $"{trainingSet.title} \\ {_setsAmount}";
 
-        _buttonsNumbers = new List<int> { 0, 1, 2};        
+        _buttonsNumbers = new List<int> { 0, 1, 2};      
 
         _buttons[GetRandomValue()].InitButton(trainingSet.matchSet[0].text, true);
         _buttons[GetRandomValue()].InitButton(trainingSet.negativeSet[0].text, false);
         _buttons[GetRandomValue()].InitButton(trainingSet.negativeSet[1].text, false);
     }
 
-    int GetRandomValue() {
+    private int GetRandomValue() {
         int number = _buttonsNumbers[Random.Range(0, _buttonsNumbers.Count)];
         _buttonsNumbers.Remove(number);
         return number;
     }
 
-    void Answer(bool answer, AnswerButton button) {
+    private void Answer(bool answer, AnswerButton button) {
         StartCoroutine(CheckAnswer(answer, button)); 
     }
 
-    IEnumerator CheckAnswer(bool answer, AnswerButton button) {
+    private IEnumerator CheckAnswer(bool answer, AnswerButton button) {
         button.SetColor(answer ? Color.green : Color.red);
         _scoreText.text = answer ? (_score += _pointsForAnswer).ToString() : (_score -= _pointsForAnswer).ToString();
         if (_score <= 0) ResetTest();
@@ -64,14 +59,14 @@ public class TestManager : MonoBehaviour
         button.ReturnColor();
         _countSets++;
         if (_countSets >= _setsAmount) ResetTest();
-        GenerateSet(_sets[_countSets]);
+        else
+            GenerateSet(_sets[_countSets]);
     }
 
-    void ResetTest() {
-        Debug.Log("RESET TEST");
+    private void ResetTest() {
         _score = 0;
         _scoreText.text = _score.ToString();
         _countSets = 0;
-        _levelsText.text = $"{_countSets} \\ {_setsAmount}";
+        GenerateSet(_sets[_countSets]);
     }
 }

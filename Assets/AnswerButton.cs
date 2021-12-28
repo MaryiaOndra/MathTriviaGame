@@ -29,7 +29,7 @@ public class AnswerButton : MonoBehaviour {
         _isMatched = isMatched;
     }
 
-    void OnClick() {
+    private void OnClick() {
         OnAnswer?.Invoke(_isMatched, this);
     }
 
