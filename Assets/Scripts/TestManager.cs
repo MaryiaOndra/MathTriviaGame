@@ -9,6 +9,7 @@ public class TestManager : MonoBehaviour
 {
     [SerializeField] private TMP_Text _question;
     [SerializeField] private TMP_Text _scoreText;
+    [SerializeField] private TMP_Text _levelText;
     [SerializeField] private List<AnswerButton> _buttons;
     [SerializeField] private int _pointsForAnswer = 50;
     [SerializeField] private float _timeAfterAnswer = 1f;
@@ -20,7 +21,7 @@ public class TestManager : MonoBehaviour
     private int _score = 0;
 
     private void Start() {
-        Test test = GetComponent<Test>();
+        JsonDataGetter test = GetComponent<JsonDataGetter>();
         test.OnGetTrainingSets += StartGeneratingTest;
         _buttons.ForEach(b => b.OnAnswer += Answer);
     }
@@ -33,7 +34,7 @@ public class TestManager : MonoBehaviour
 
     private void GenerateSet(TrainingSet trainingSet) {
         _question.text = trainingSet.displaySet[0].text;
-
+        _levelText.text = $"{trainingSet.title} \\ {_setsAmount}";
         _buttonsNumbers = new List<int> { 0, 1, 2};      
 
         _buttons[GetRandomValue()].InitButton(trainingSet.matchSet[0].text, true);
@@ -53,14 +54,33 @@ public class TestManager : MonoBehaviour
 
     private IEnumerator CheckAnswer(bool answer, AnswerButton button) {
         button.SetColor(answer ? Color.green : Color.red);
-        _scoreText.text = answer ? (_score += _pointsForAnswer).ToString() : (_score -= _pointsForAnswer).ToString();
-        if (_score <= 0) ResetTest();
         yield return new WaitForSeconds(_timeAfterAnswer);
         button.ReturnColor();
-        _countSets++;
-        if (_countSets >= _setsAmount) ResetTest();
-        else
-            GenerateSet(_sets[_countSets]);
+        if (!CheckScore(answer)) yield break;
+        if (!CheckCount()) yield break;
+        GenerateSet(_sets[_countSets]);
+    }
+
+    private bool CheckCount() {
+        int count = _countSets + 1;
+        if (count >= _setsAmount) {
+            ResetTest();
+            return false;
+        } else {
+            _countSets = count;
+            return true;
+        }
+    }
+
+    private bool CheckScore(bool answer) {
+        _score = answer ? (_score += _pointsForAnswer) : (_score -= _pointsForAnswer);
+        if (_score <= 0) {
+            ResetTest();
+            return false;
+        } else {
+            _scoreText.text = _score.ToString();
+            return true;
+        }
     }
 
     private void ResetTest() {
