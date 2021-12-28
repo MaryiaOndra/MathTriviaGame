@@ -9,6 +9,8 @@ public class Test : MonoBehaviour {
 
     public TrainingSet[] TrainingSets { get; private set; }
 
+    public event Action<TrainingSet[]> OnGetTrainingSets;
+
     void Start() {
         StartCoroutine(GetTrainingSets(OnGotSets));
     }
@@ -21,6 +23,7 @@ public class Test : MonoBehaviour {
         UnityWebRequest request = UnityWebRequest.Get(url);
         yield return request.SendWebRequest();
         ResponseData response = JsonUtility.FromJson<ResponseData>(request.downloadHandler.text);
+        OnGetTrainingSets?.Invoke(response.trainingSet);
         callback?.Invoke(response.trainingSet);
     }
 }
@@ -42,8 +45,5 @@ public class TrainingSet {
 public class Set {
     public string id;
     public string text;
-    public string audioPath;
-    public string imagePath;
-    public string omitFromSet;
 }
 
