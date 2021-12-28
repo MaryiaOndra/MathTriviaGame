@@ -15,6 +15,7 @@ public class TestManager : MonoBehaviour
     [SerializeField] private float _timeAfterAnswer = 1f;
 
     TrainingSet[] _sets;
+    List<int> _buttonsNumbers;
 
     Test test;
     int _countSets = 0;
@@ -36,27 +37,19 @@ public class TestManager : MonoBehaviour
 
     void GenerateSet(TrainingSet trainingSet) {
         _question.text = trainingSet.displaySet[0].text;
-        _levelsText.text = $"{_countSets + 1} \\ {_setsAmount}";
+        _levelsText.text = $"{trainingSet.title} \\ {_setsAmount}";
 
-        
+        _buttonsNumbers = new List<int> { 0, 1, 2};        
 
-        _buttons[0].InitButton(trainingSet.matchSet[0].text, true);
-        _buttons[1].InitButton(trainingSet.negativeSet[0].text, false);
-        _buttons[2].InitButton(trainingSet.negativeSet[1].text, false);
+        _buttons[GetRandomValue()].InitButton(trainingSet.matchSet[0].text, true);
+        _buttons[GetRandomValue()].InitButton(trainingSet.negativeSet[0].text, false);
+        _buttons[GetRandomValue()].InitButton(trainingSet.negativeSet[1].text, false);
     }
 
-
-    void SetRandomButtonsValues() {
-        List<int> setNames = new ();
-        for (int i = 0; i < _buttons.Count - 1; i++) {
-            int x;
-            do {
-                Random r = new Random();
-                x = r.nextInt(str.length);
-            } while (setNames.contains(x));
-            setNames.add(x);
-            buttons[i].setText(str[x]);
-        }
+    int GetRandomValue() {
+        int number = _buttonsNumbers[Random.Range(0, _buttonsNumbers.Count)];
+        _buttonsNumbers.Remove(number);
+        return number;
     }
 
     void Answer(bool answer, AnswerButton button) {
@@ -75,8 +68,10 @@ public class TestManager : MonoBehaviour
     }
 
     void ResetTest() {
+        Debug.Log("RESET TEST");
         _score = 0;
         _scoreText.text = _score.ToString();
         _countSets = 0;
+        _levelsText.text = $"{_countSets} \\ {_setsAmount}";
     }
 }
